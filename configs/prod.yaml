@@ -1,0 +1,51 @@
+# configs/prod.yaml
+project:
+  name: log-guardian
+  env: production
+  version: 0.1.0
+
+paths:
+  data_raw: data/raw
+  data_processed: data/processed
+  data_samples: data/samples
+  models_artifacts: models/artifacts/prod
+  models_registry: models/registry.json
+  logs: logs/prod.log
+
+ingestion:
+  batch_size: 5000            # bigger batches for throughput
+  file_type: json
+  timestamp_field: timestamp
+
+features:
+  window_size_minutes: 10
+  aggregation_methods: [mean, max, min, std, p95]
+  categorical_encoding: onehot
+
+modeling:
+  algorithm: isolation_forest
+  params:
+    n_estimators: 300         # larger, more stable model in prod
+    max_samples: "auto"
+    contamination: auto
+    random_state: 42
+    n_jobs: -1                # use all cores
+  train_split: 0.9
+  save_model: true
+
+rules:
+  signatures_file: src/log_guardian/rules/signatures.py
+
+api:
+  host: 0.0.0.0
+  port: 8000
+  reload: false               # disable hot reload in prod
+  workers: 4                  # used by your serve script/gunicorn if applicable
+  timeout_seconds: 30
+
+logging:
+  level: WARNING
+  format: "[%(asctime)s] %(levelname)s %(name)s:%(lineno)d — %(message)s"
+  log_file: logs/prod.log
+  max_size: 10000000         # 10 MB for production
+  backup_count: 5            # keep 5 backups

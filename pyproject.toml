@@ -1,0 +1,64 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "log-guardian"
+version = "0.1.0"
+description = "Anomaly detection & rule-based log analysis"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "Xcite", email = "xcite@example.com" }
+]
+keywords = ["logs", "anomaly detection", "security", "machine learning"]
+
+dependencies = [
+    "pandas>=2.0.0",
+    "scikit-learn>=1.2.0",
+    "joblib>=1.2.0",
+    "uvicorn[standard]>=0.23.0",
+    "fastapi>=0.100.0",
+    "pyyaml",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov",
+    "flake8>=6.0.0",
+    "black>=23.0",
+    "isort>=5.12.0",
+    "mypy>=1.5.0",
+]
+
+# ---- tell setuptools to discover packages under src/ ----
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["log_guardian*"]
+# exclude = ["tests*"]  # uncomment if you ever vendor tests inside src
+
+[tool.black]
+line-length = 88
+target-version = ["py310"]
+
+[tool.isort]
+profile = "black"
+line_length = 88
+
+[tool.flake8]
+max-line-length = 88
+extend-ignore = ["E203", "W503"]
+
+[tool.pytest.ini_options]
+addopts = "-v --disable-warnings"
+testpaths = ["tests"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+ignore_missing_imports = true

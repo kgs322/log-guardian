@@ -1,0 +1,94 @@
+# docker/compose.yaml
+name: log-guardian
+
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      args:
+        PYTHON_VERSION: "3.11"
+    image: log-guardian:prod
+    container_name: log-guardian-app
+    environment:
+      LOG_GUARDIAN_CONFIG: configs/prod.yaml
+      APP_HOST: 0.0.0.0
+      APP_PORT: "8000"
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../configs:/app/configs:ro
+      - ../models:/app/models
+      - ../data:/app/data
+      - ../logs:/app/logs
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8000/ || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    restart: unless-stopped
+    # Uncomment if you have noisy logs
+    # logging:
+    #   driver: json-file
+    #   options:
+    #     max-size: "10m"
+    #     max-file: "3"
+
+  app-dev:
+    profiles: ["dev"]
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      args:
+        PYTHON_VERSION: "3.11"
+    image: log-guardian:dev
+    container_name: log-guardian-dev
+    environment:
+      LOG_GUARDIAN_CONFIG: configs/dev.yaml
+      APP_HOST: 0.0.0.0
+      APP_PORT: "8000"
+    command: >
+      uvicorn log_guardian.api.app:app
+      --host 0.0.0.0 --port 8000 --reload
+    ports:
+      - "8001:8000"
+    volumes:
+      # bind-mount source for live edits
+      - ../src:/app/src
+      - ../configs:/app/configs
+      - ../models:/app/models
+      - ../data:/app/data
+      - ../logs:/app/logs
+      - ../scripts:/app/scripts
+      - ../notebooks:/app/notebooks
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8000/ || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  trainer:
+    profiles: ["jobs"]
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      args:
+        PYTHON_VERSION: "3.11"
+    image: log-guardian:trainer
+    container_name: log-guardian-trainer
+    environment:
+      LOG_GUARDIAN_CONFIG: configs/prod.yaml
+    # Run the training script once then exit
+    command: >
+      python scripts/train_model.py --config ${LOG_GUARDIAN_CONFIG}
+    volumes:
+      - ../configs:/app/configs
+      - ../models:/app/models
+      - ../data:/app/data
+      - ../logs:/app/logs
+    restart: "no"
+    # Uncomment if you want to log training output
+    # logging:

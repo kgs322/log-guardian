@@ -1,0 +1,23 @@
+# Core
+fastapi
+uvicorn[standard]
+pydantic>=1.10
+python-dotenv
+
+# Data & ML
+pandas
+scikit-learn
+numpy
+
+# Logging & Config
+pyyaml
+
+# Dev & Testing
+pytest
+httpx
+black
+isort
+flake8
+mypy
+# Optional: For specific features
+# Uncomment if you need these features

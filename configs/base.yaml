@@ -1,0 +1,46 @@
+# configs/base.yaml
+project:
+  name: log-guardian
+  version: 0.1.0
+  author: Xcite
+
+paths:
+  data_raw: data/raw
+  data_processed: data/processed
+  data_samples: data/samples
+  models_artifacts: models/artifacts
+  models_registry: models/registry.json
+  logs: logs/
+
+ingestion:
+  batch_size: 1000
+  file_type: json   # json, csv, parquet
+  timestamp_field: timestamp
+
+features:
+  window_size_minutes: 5
+  aggregation_methods: [mean, max, min, std]
+  categorical_encoding: onehot
+
+modeling:
+  algorithm: isolation_forest
+  params:
+    n_estimators: 100
+    contamination: auto
+    random_state: 42
+  train_split: 0.8
+  save_model: true
+
+rules:
+  signatures_file: src/log_guardian/rules/signatures.py
+
+api:
+  host: 0.0.0.0
+  port: 8000
+  reload: false
+
+logging:
+  level: INFO
+  format: "[%(asctime)s] %(levelname)s in %(module)s: %(message)s"
+  log_file: logs/log_guardian.log
+  max_size: 10000000  # 10 MB

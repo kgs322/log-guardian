@@ -1,3 +1,4 @@
+````markdown
 # 🛡️ Log Guardian
 
 **Log Guardian** is a lightweight framework for **anomaly detection** and **rule-based log analysis**.  
@@ -23,3 +24,77 @@ It combines **machine learning models** (e.g., Isolation Forest) with **heuristi
 git clone https://github.com/kgs322/log-guardian.git
 cd log-guardian
 pip install -e .[dev]
+````
+
+Or with **poetry** / **pipx** if you prefer.
+
+---
+
+## ⚡ Usage
+
+### 🔹 Train a Model
+
+```bash
+log-guardian train \
+  --data data/sample_logs.csv \
+  --features failed_login_rate unique_ports reqs_per_min status_4xx_5xx_ratio
+```
+
+### 🔹 Predict
+
+```bash
+log-guardian predict \
+  --data data/sample_logs.csv \
+  --model models/artifacts/isolation_forest_v0.1.0.pkl
+```
+
+### 🔹 Run API
+
+```bash
+uvicorn log_guardian.api.main:app --reload --port 8000
+```
+
+---
+
+## 🧑‍💻 Development
+
+### Run Tests
+
+```bash
+pytest -v
+```
+
+### Format & Lint
+
+```bash
+black .
+isort .
+flake8
+mypy .
+```
+
+---
+
+## 📂 Project Layout
+
+```bash
+src/log_guardian/
+  ├── ingestion/        # parsers & schemas
+  ├── features/         # feature engineering
+  ├── modeling/         # train, predict, registry
+  ├── rules/            # signatures & rules engine
+  ├── api/              # FastAPI app
+  ├── cli.py            # CLI entrypoint
+  ├── config.py         # config loader
+  ├── logging_setup.py  # centralized logging
+  └── utils.py          # helpers
+```
+
+---
+
+🚨 Built for security monitoring, automation, and easy integration with Python + FastAPI.
+
+```
+
+Do you also want me to generate a **`CHANGELOG.md`** so you can start versioning `log-guardian-4` updates right away?
+```
